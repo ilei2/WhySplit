@@ -9,13 +9,6 @@ const SplitMemberSchema = z.object({
 })
 
 export const ExpenseSchema = z.object({
-    // name: z.string().min(1, "Name is required."),
-    // amount: z.number(),
-    // party: z.array(z.string()),
-    // description: z.string().min(1, "Description is required."),
-    // category: z.string().optional(),
-    // id: z.string().optional()
-
     description: z.string().min(1).max(100).optional(),
     category: z.string().optional(),
     totalAmount: z.number().positive(),
@@ -30,10 +23,10 @@ export const ExpenseSchema = z.object({
     path: ["splits"] 
 }).strict()
 
-export const UserSchema = z.object({
-    name: z.string().min(1, "Name is required."),
-    publicId: z.string().refine((val) => isCuid(val), { message: "Invalid CUID2" }),
-    email: z.string().min(8, "Email is required."),
-    currency: z.string()
-})
+// export const UserSchema = z.object({
+//     name: z.string().min(1, "Name is required."),
+//     publicId: z.string().refine((val) => isCuid(val), { message: "Invalid CUID2" }),
+//     email: z.string().min(8, "Email is required."),
+//     currency: z.string()
+// })
 
