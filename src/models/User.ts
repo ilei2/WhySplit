@@ -11,4 +11,7 @@ const UserSchema = new Schema({
     }
 })
 
+// create index for fast lookups
+UserSchema.index({ publicId: 1 })
+
 export const User = model('User', UserSchema)

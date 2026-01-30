@@ -1,5 +1,5 @@
 import express from "express"
-import { connectToDatabase } from "./src/services/database.service"
+import { connectToDataBase } from "./src/services/database.service"
 import transactionRouter from "./src/routes/transactionRoutes"
 import userRouter from "./src/routes/userRoutes"
 import dotenv from "dotenv";
@@ -19,7 +19,7 @@ app.use("/users", userRouter)
 const env = dotenv.config().parsed
 const port = env?.PORT
 
-connectToDatabase()
+connectToDataBase()
     .then(() => {
         app.listen(port, () => {
             console.log(`Server started at http://localhost:${port}`)
