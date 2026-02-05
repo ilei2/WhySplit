@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^3.0.6",
+    "csv-stringify": "^6.6.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "mongodb": "^6.20.0",

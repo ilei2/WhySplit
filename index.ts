@@ -2,6 +2,7 @@ import express from "express"
 import { connectToDataBase } from "./src/services/database.service"
 import transactionRouter from "./src/routes/transactionRoutes"
 import userRouter from "./src/routes/userRoutes"
+import groupRouter from "./src/routes/groupRoutes"
 import dotenv from "dotenv";
 
 const app = express()
@@ -16,6 +17,7 @@ app.use((req, res, next) => {
 // mount routers
 app.use("/transaction", transactionRouter)
 app.use("/users", userRouter)
+app.use('/groups', groupRouter)
 const env = dotenv.config().parsed
 const port = env?.PORT
 

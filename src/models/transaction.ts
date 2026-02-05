@@ -1,7 +1,36 @@
-import { Schema, model } from "mongoose"
+import { Schema, Types, model } from "mongoose"
 import { createId } from '@paralleldrive/cuid2'
 
-const TransactionSchema = new Schema({
+export interface ISplits {
+  userId: Types.ObjectId,
+  amount: number
+}
+
+export interface ITransaction extends Document {
+  _id: Types.ObjectId,
+  transactionId: string,
+  description: string,
+  category: string,
+  totalAmount: number,
+  currency: string,
+  date: Date,
+  payer: string,
+  involvedParticipants: string[],
+  splits: ISplits[],
+  isPayment: boolean,
+  groupId: string
+}
+
+const SplitSchema = new Schema<ISplits>({
+  userId: { 
+    type: Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
+  },
+  amount: { type: Number, required: true } 
+}, { _id: false })
+
+const TransactionSchema = new Schema<ITransaction>({
   transactionId: { 
     type: String, 
     default: () => createId(),
@@ -12,23 +41,33 @@ const TransactionSchema = new Schema({
   category: { type: String, required: true, default: 'General' },
   totalAmount: { 
     type: Number, 
-    min: [1, 'Amount must be a positive value'],
+    min: [1, 'Amount must be positive'],
     required: true 
   },
   currency: { type: String, required: true, default: 'USD' },
   date: { type: Date, default: Date.now },
 
-  // reference to User model
   payer: { type: String, ref: 'User', required: true },
 
-  // The individual shares
-  splits: [{
-    publicId: { type: String, ref: 'User', required: true },
-    amount: { type: Number, required: true } 
-  }],
+  involvedParticipants: [ {type: String} ],
 
-  // Helps distinguish between a "Dinner Expense" and a "Settlement Payment"
-  isPayment: { type: Boolean, default: false }
+  // The individual shares
+  splits: {
+    type: [SplitSchema],
+    validate: {
+      validator: function(splits: any[]) {
+        const sum = splits.reduce((acc, curr) => acc + curr.amount, 0)
+        return sum === 0
+      },
+      message: 'Accounting Error: The sum of split balances must equal zero.'
+    }
+  },
+
+  // Helps distinguish between an expense and a payment
+  isPayment: { type: Boolean, default: false },
+
+  // Optional Group name
+  groupId: { type: String }
 }, { 
   timestamps: true // Adds createdAt and updatedAt automatically
 })
@@ -38,42 +77,4 @@ TransactionSchema.index({ payer: 1 })
 TransactionSchema.index({ date: -1 })
 TransactionSchema.index({ transactionId: 1 })
 
-export const Transaction = model('Transaction', TransactionSchema)
-
-
-// interface ITransaction {
-//     description: string,
-//     category: string,
-//     totalAmount: number,
-//     currency: string,
-//     date: Date,
-//     paidBy: Types.ObjectId
-//     splits: {
-//         userId: Types.ObjectId,
-//         amount: number
-//     }
-//     isPayment: boolean
-// }
-
-// const TransactionSchema = new Schema<ITransaction>({
-//   description: { type: String, required: true, trim: true },
-//   category: { type: String, required: true, default: 'General' },
-//   totalAmount: { type: Number, required: true },
-//   currency: { type: String, required: true, default: 'USD' },
-//   date: { type: Date, default: Date.now },
-  
-//   // Reference to the User model
-//   paidBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-
-//   // The individual shares
-//   splits: [{
-//     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-//     amount: { type: Number, required: true } 
-//   }],
-
-//   // Helps distinguish between a "Dinner Expense" and a "Settlement Payment"
-//   isPayment: { type: Boolean, default: false }
-// }, { 
-//   timestamps: true // Adds createdAt and updatedAt automatically
-// })
-// export const Transaction = model<ITransaction>('Transaction', TransactionSchema)
+export const Transaction = model<ITransaction>('Transaction', TransactionSchema)
