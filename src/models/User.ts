@@ -1,7 +1,14 @@
 import { createId } from '@paralleldrive/cuid2'
-import { Schema, model } from 'mongoose'
+import { Schema, Types, model } from 'mongoose'
 
-const UserSchema = new Schema({
+export interface IUser extends Document {
+    _id: Types.ObjectId
+    name: string
+    email: string
+    publicId: string
+}
+
+const UserSchema = new Schema<IUser>({
     name: { type: String, required: true},
     email: { type: String, required: true, unique: true },
     publicId: { 
@@ -14,4 +21,4 @@ const UserSchema = new Schema({
 // create index for fast lookups
 UserSchema.index({ publicId: 1 })
 
-export const User = model('User', UserSchema)
+export const User = model<IUser>('User', UserSchema)
